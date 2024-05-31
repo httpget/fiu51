@@ -1,4 +1,17 @@
 -- // Environment changes in the VM are not supposed to alter the behaviour of the VM so we localise globals beforehand
+
+buffer = buffer or setmetatable({}, {
+	__index = function()
+		return function()
+			error("buffer functions are reserved for roblox/luau", 2)
+		end
+	end
+})
+
+-- https://github.com/AlberTajuelo/bitop-lua
+local bitModule = (function() local a={_TYPE='module',_NAME='bitop.funcs',_VERSION='1.0-0'}local b=math.floor;local c=2^32;local d=c-1;local function e(f)local g={}local h=setmetatable({},g)function g:__index(i)local j=f(i)h[i]=j;return j end;return h end;local function k(h,l)local function m(n,o)local p,q=0,1;while n~=0 and o~=0 do local r,s=n%l,o%l;p=p+h[r][s]*q;n=(n-r)/l;o=(o-s)/l;q=q*l end;p=p+(n+o)*q;return p end;return m end;local function t(h)local u=k(h,2^1)local v=e(function(n)return e(function(o)return u(n,o)end)end)return k(v,2^(h.n or 1))end;function a.tobit(w)return w%2^32 end;a.bxor=t{[0]={[0]=0,[1]=1},[1]={[0]=1,[1]=0},n=4}local x=a.bxor;function a.bnot(n)return d-n end;local y=a.bnot;function a.band(n,o)return(n+o-x(n,o))/2 end;local z=a.band;function a.bor(n,o)return d-z(d-n,d-o)end;local A=a.bor;local B,C;function a.rshift(n,D)if D<0 then return B(n,-D)end;return b(n%2^32/2^D)end;C=a.rshift;function a.lshift(n,D)if D<0 then return C(n,-D)end;return n*2^D%2^32 end;B=a.lshift;function a.tohex(w,E)E=E or 8;local F;if E<=0 then if E==0 then return''end;F=true;E=-E end;w=z(w,16^E-1)return('%0'..E..(F and'X'or'x')):format(w)end;local G=a.tohex;function a.extract(E,H,I)I=I or 1;return z(C(E,H),2^I-1)end;local J=a.extract;function a.replace(E,j,H,I)I=I or 1;local K=2^I-1;j=z(j,K)local L=y(B(K,H))return z(E,L)+B(j,H)end;local M=a.replace;function a.bswap(w)local n=z(w,0xff)w=C(w,8)local o=z(w,0xff)w=C(w,8)local N=z(w,0xff)w=C(w,8)local O=z(w,0xff)return B(B(B(n,8)+o,8)+N,8)+O end;local P=a.bswap;function a.rrotate(w,D)D=D%32;local Q=z(w,2^D-1)return C(w,D)+B(Q,32-D)end;local R=a.rrotate;function a.lrotate(w,D)return R(w,-D)end;local S=a.lrotate;a.rol=a.lrotate;a.ror=a.rrotate;function a.arshift(w,D)local T=C(w,D)if w>=0x80000000 then T=T+B(2^D-1,32-D)end;return T end;local U=a.arshift;function a.btest(w,V)return z(w,V)~=0 end;a.bit32={}local function W(w)return(-1-w)%c end;a.bit32.bnot=W;local function X(n,o,N,...)local T;if o then n=n%c;o=o%c;T=x(n,o)if N then T=X(T,N,...)end;return T elseif n then return n%c else return 0 end end;a.bit32.bxor=X;local function Y(n,o,N,...)local T;if o then n=n%c;o=o%c;T=(n+o-x(n,o))/2;if N then T=Y(T,N,...)end;return T elseif n then return n%c else return d end end;a.bit32.band=Y;local function Z(n,o,N,...)local T;if o then n=n%c;o=o%c;T=d-z(d-n,d-o)if N then T=Z(T,N,...)end;return T elseif n then return n%c else return 0 end end;a.bit32.bor=Z;function a.bit32.btest(...)return Y(...)~=0 end;function a.bit32.lrotate(w,D)return S(w%c,D)end;function a.bit32.rrotate(w,D)return R(w%c,D)end;function a.bit32.lshift(w,D)if D>31 or D<-31 then return 0 end;return B(w%c,D)end;function a.bit32.rshift(w,D)if D>31 or D<-31 then return 0 end;return C(w%c,D)end;function a.bit32.arshift(w,D)w=w%c;if D>=0 then if D>31 then return w>=0x80000000 and d or 0 else local T=C(w,D)if w>=0x80000000 then T=T+B(2^D-1,32-D)end;return T end else return B(w,-D)end end;function a.bit32.extract(w,H,...)local I=...or 1;if H<0 or H>31 or I<0 or H+I>32 then error'out of range'end;w=w%c;return J(w,H,...)end;function a.bit32.replace(w,j,H,...)local I=...or 1;if H<0 or H>31 or I<0 or H+I>32 then error'out of range'end;w=w%c;j=j%c;return M(w,j,H,...)end;a.bit={}function a.bit.tobit(w)w=w%c;if w>=0x80000000 then w=w-c end;return w end;local _=a.bit.tobit;function a.bit.tohex(w,...)return G(w%c,...)end;function a.bit.bnot(w)return _(y(w%c))end;local function a0(n,o,N,...)if N then return a0(a0(n,o),N,...)elseif o then return _(A(n%c,o%c))else return _(n)end end;a.bit.bor=a0;local function a1(n,o,N,...)if N then return a1(a1(n,o),N,...)elseif o then return _(z(n%c,o%c))else return _(n)end end;a.bit.band=a1;local function a2(n,o,N,...)if N then return a2(a2(n,o),N,...)elseif o then return _(x(n%c,o%c))else return _(n)end end;a.bit.bxor=a2;function a.bit.lshift(w,E)return _(B(w%c,E%32))end;function a.bit.rshift(w,E)return _(C(w%c,E%32))end;function a.bit.arshift(w,E)return _(U(w%c,E%32))end;function a.bit.rol(w,E)return _(S(w%c,E%32))end;function a.bit.ror(w,E)return _(R(w%c,E%32))end;function a.bit.bswap(w)return _(P(w%c))end;return a;end)()
+local bit32 = bit32 or bitModule.bit32
+
 local type = type
 local pcall = pcall
 local error = error
@@ -284,10 +297,10 @@ local function luau_deserialize(bytecode, luau_settings)
 		elseif opmode == 4 then --[[ AD ]]
 			inst.A = bit32_band(bit32_rshift(value, 8), 0xFF)
 			local temp = bit32_band(bit32_rshift(value, 16), 0xFFFF)
-			inst.D = if temp < 0x8000 then temp else temp - 0x10000
+			inst.D = temp < 0x8000 and temp or temp - 0x10000
 		elseif opmode == 5 then --[[ AE ]]
 			local temp = bit32_band(bit32_rshift(value, 8), 0xFFFFFF)
-			inst.E = if temp < 0x800000 then temp else temp - 0x1000000
+			inst.E = temp < 0x800000 and temp or temp - 0x1000000
 		end
 
 		if usesAux then 
@@ -359,10 +372,12 @@ local function luau_deserialize(bytecode, luau_settings)
 		for i = 1, sizecode do
 			if skipnext then 
 				skipnext = false
-				continue 
+				--continue 
+			else
+				skipnext = readInstruction(codelist)
 			end
 
-			skipnext = readInstruction(codelist)
+			--skipnext = readInstruction(codelist)
 		end
 
 		local sizek = readVarInt()
@@ -441,13 +456,13 @@ local function luau_deserialize(bytecode, luau_settings)
 
 			local lastoffset = 0
 			for j = 1, sizecode do
-				lastoffset += readByte()
+				lastoffset = lastoffset + readByte()
 				lineinfo[j] = lastoffset
 			end
 
 			local lastline = 0
 			for j = 1, intervals do
-				lastline += readWord()
+				lastline = lastline + readWord()
 				abslineinfo[j] = lastline
 			end
 
@@ -590,7 +605,7 @@ local function luau_load(module, env, luau_settings)
 				debugging.top = top
 				debugging.name = inst.opname
 
-				pc += 1
+				pc = pc + 1
 
 				if stepHook then
 					stepHook(stack, debugging, proto, module, upvals)
@@ -608,7 +623,7 @@ local function luau_load(module, env, luau_settings)
 					stack[inst.A] = nil
 				elseif op == 3 then --[[ LOADB ]]
 					stack[inst.A] = inst.B == 1
-					pc += inst.C
+					pc = pc + inst.C
 				elseif op == 4 then --[[ LOADN ]]
 					stack[inst.A] = inst.D
 				elseif op == 5 then --[[ LOADK ]]
@@ -620,12 +635,12 @@ local function luau_load(module, env, luau_settings)
 
 					stack[inst.A] = extensions[kv] or env[kv]
 
-					pc += 1 --// adjust for aux
+					pc = pc + 1 --// adjust for aux
 				elseif op == 8 then --[[ SETGLOBAL ]]
 					local kv = inst.K
 					env[kv] = stack[inst.A]
 
-					pc += 1 --// adjust for aux
+					pc = pc + 1 --// adjust for aux
 				elseif op == 9 then --[[ GETUPVAL ]]
 					local uv = upvals[inst.B + 1]
 					stack[inst.A] = uv.store[uv.index]
@@ -654,7 +669,7 @@ local function luau_load(module, env, luau_settings)
 						stack[inst.A] = import[inst.K1][inst.K2]
 					end
 
-					pc += 1 --// adjust for aux 
+					pc = pc + 1 --// adjust for aux 
 				elseif op == 13 then --[[ GETTABLE ]]
 					stack[inst.A] = stack[inst.B][stack[inst.C]]
 				elseif op == 14 then --[[ SETTABLE ]]
@@ -663,12 +678,12 @@ local function luau_load(module, env, luau_settings)
 					local index = inst.K
 					stack[inst.A] = stack[inst.B][index]
 
-					pc += 1 --// adjust for aux 
+					pc = pc + 1 --// adjust for aux 
 				elseif op == 16 then --[[ SETTABLEKS ]]
 					local index = inst.K
 					stack[inst.B][index] = stack[inst.A]
 
-					pc += 1 --// adjust for aux
+					pc = pc + 1 --// adjust for aux
 				elseif op == 17 then --[[ GETTABLEN ]]
 					stack[inst.A] = stack[inst.B][inst.C + 1]
 				elseif op == 18 then --[[ SETTABLEN ]]
@@ -683,7 +698,7 @@ local function luau_load(module, env, luau_settings)
 					for i = 1, nups do
 						local pseudo = code[pc]
 
-						pc += 1
+						pc = pc + 1
 
 						local type = pseudo.A
 
@@ -722,7 +737,7 @@ local function luau_load(module, env, luau_settings)
 
 					stack[A + 1] = sb
 					
-					pc += 1 --// adjust for aux 
+					pc = pc + 1 --// adjust for aux 
 					
 					local useFallback = true
 					
@@ -746,7 +761,7 @@ local function luau_load(module, env, luau_settings)
 							interruptHook(stack, debugging, proto, module, upvals)	
 						end
 
-						local params = if callB == 0 then top - callA else callB - 1
+						local params = callB == 0 and top - callA or callB - 1
 						local ret_list = table_pack(
 							nativeNamecall(kv, table_unpack(stack, callA + 1, callA + params))
 						)
@@ -754,7 +769,7 @@ local function luau_load(module, env, luau_settings)
 						if ret_list[1] == true then
 							useFallback = false
 							
-							pc += 1 --// Skip next CALL instruction
+							pc = pc + 1 --// Skip next CALL instruction
 
 							inst = callInst
 							op = callOp
@@ -785,7 +800,7 @@ local function luau_load(module, env, luau_settings)
 
 					local A, B, C = inst.A, inst.B, inst.C
 
-					local params = if B == 0 then top - A else B - 1
+					local params = B == 0 and top - A or B - 1
 					local func = stack[A]
 					local ret_list = table_pack(
 						func(table_unpack(stack, A + 1, A + params))
@@ -818,56 +833,56 @@ local function luau_load(module, env, luau_settings)
 
 					return table_unpack(stack, A, A + nresults - 1)
 				elseif op == 23 then --[[ JUMP ]]
-					pc += inst.D
+					pc = pc + inst.D
 				elseif op == 24 then --[[ JUMPBACK ]]
 					if interruptHook then
 						interruptHook(stack, debugging, proto, module, upvals)	
 					end
 
-					pc += inst.D
+					pc = pc + inst.D
 				elseif op == 25 then --[[ JUMPIF ]]
 					if stack[inst.A] then
-						pc += inst.D
+						pc = pc + inst.D
 					end
 				elseif op == 26 then --[[ JUMPIFNOT ]]
 					if not stack[inst.A] then
-						pc += inst.D
+						pc = pc + inst.D
 					end
 				elseif op == 27 then --[[ JUMPIFEQ ]]
 					if stack[inst.A] == stack[inst.aux] then
-						pc += inst.D
+						pc = pc + inst.D
 					else
-						pc += 1
+						pc = pc + 1
 					end
 				elseif op == 28 then --[[ JUMPIFLE ]]
 					if stack[inst.A] <= stack[inst.aux] then
-						pc += inst.D
+						pc = pc + inst.D
 					else
-						pc += 1
+						pc = pc + 1
 					end
 				elseif op == 29 then --[[ JUMPIFLT ]]
 					if stack[inst.A] < stack[inst.aux] then
-						pc += inst.D
+						pc = pc + inst.D
 					else
-						pc += 1
+						pc = pc + 1
 					end
 				elseif op == 30 then --[[ JUMPIFNOTEQ ]]
 					if stack[inst.A] == stack[inst.aux] then
-						pc += 1
+						pc = pc + 1
 					else
-						pc += inst.D
+						pc = pc + inst.D
 					end
 				elseif op == 31 then --[[ JUMPIFNOTLE ]]
 					if stack[inst.A] <= stack[inst.aux] then
-						pc += 1
+						pc = pc + 1
 					else
-						pc += inst.D
+						pc = pc + inst.D
 					end
 				elseif op == 32 then --[[ JUMPIFNOTLT ]]
 					if stack[inst.A] < stack[inst.aux] then
-						pc += 1
+						pc = pc + 1
 					else
-						pc += inst.D
+						pc = pc + inst.D
 					end
 				elseif op == 33 then --[[ ADD ]]
 					stack[inst.A] = stack[inst.B] + stack[inst.C]
@@ -895,20 +910,48 @@ local function luau_load(module, env, luau_settings)
 					stack[inst.A] = stack[inst.B] ^ inst.K
 				elseif op == 45 then --[[ AND ]]
 					local value = stack[inst.B]
-					stack[inst.A] = if value then stack[inst.C] or false else value
+
+					if value then
+						stack[inst.A] = stack[inst.C] or false
+					else
+						stack[inst.A] = value
+					end
+
+					--stack[inst.A] = if value then stack[inst.C] or false else value
 				elseif op == 46 then --[[ OR ]]
 					local value = stack[inst.B]
-					stack[inst.A] = if value then value else stack[inst.C] or false
+
+					if value then
+						stack[inst.A] = value
+					else
+						stack[inst.A] = stack[inst.C] or false
+					end
+
+					--stack[inst.A] = if value then value else stack[inst.C] or false
 				elseif op == 47 then --[[ ANDK ]]
 					local value = stack[inst.B]
-					stack[inst.A] = if value then inst.K or false else value
+
+					if value then
+						stack[inst.A] = inst.K or false
+					else
+						stack[inst.A] = value
+					end
+
+					--stack[inst.A] = if value then inst.K or false else value
 				elseif op == 48 then --[[ ORK ]]
 					local value = stack[inst.B]
-					stack[inst.A] = if value then value else inst.K or false
+
+					if value then
+						stack[inst.A] = value
+					else
+						stack[inst.A] = inst.K or false
+					end
+
+					--stack[inst.A] = if value then value else inst.K or false
 				elseif op == 49 then --[[ CONCAT ]]
 					local s = ""
 					for i = inst.B, inst.C do
-						s ..= stack[i]
+						s = s .. stack[i]
 					end
 					stack[inst.A] = s
 				elseif op == 50 then --[[ NOT ]]
@@ -920,7 +963,7 @@ local function luau_load(module, env, luau_settings)
 				elseif op == 53 then --[[ NEWTABLE ]]
 					stack[inst.A] = table_create(inst.aux)
 
-					pc += 1 --// adjust for aux 
+					pc = pc + 1 --// adjust for aux 
 				elseif op == 54 then --[[ DUPTABLE ]]
 					local template = inst.K
 					local serialized = {}
@@ -939,7 +982,7 @@ local function luau_load(module, env, luau_settings)
 
 					table_move(stack, B, B + c - 1, inst.aux, stack[A])
 
-					pc += 1 --// adjust for aux 
+					pc = pc + 1 --// adjust for aux 
 				elseif op == 56 then --[[ FORNPREP ]]
 					local A = inst.A
 
@@ -981,11 +1024,11 @@ local function luau_load(module, env, luau_settings)
 
 					if step > 0 then
 						if not (index <= limit) then
-							pc += inst.D
+							pc = pc + inst.D
 						end
 					else
 						if not (limit <= index) then
-							pc += inst.D
+							pc = pc + inst.D
 						end
 					end
 				elseif op == 57 then --[[ FORNLOOP ]]
@@ -1002,11 +1045,11 @@ local function luau_load(module, env, luau_settings)
 
 					if step > 0 then
 						if index <= limit then
-							pc += inst.D
+							pc = pc + inst.D
 						end
 					else
 						if limit <= index then
-							pc += inst.D
+							pc = pc + inst.D
 						end
 					end
 				elseif op == 58 then --[[ FORGLOOP ]]
@@ -1027,9 +1070,9 @@ local function luau_load(module, env, luau_settings)
 
 						if stack[A + 3] ~= nil then
 							stack[A + 2] = stack[A + 3]
-							pc += inst.D
+							pc = pc + inst.D
 						else
-							pc += 1
+							pc = pc + 1
 						end
 					else
 						local ok, vals = coroutine_resume(generalized_iterators[inst], it, stack[A + 1], stack[A + 2])
@@ -1038,12 +1081,12 @@ local function luau_load(module, env, luau_settings)
 						end
 						if vals == LUA_GENERALIZED_TERMINATOR then 
 							generalized_iterators[inst] = nil
-							pc += 1
+							pc = pc + 1
 						else
 							table_move(vals, 1, res, A + 3, stack)
 
 							stack[A + 2] = stack[A + 3]
-							pc += inst.D
+							pc = pc + inst.D
 						end
 					end
 				elseif op == 59 then --[[ FORGPREP_INEXT ]]
@@ -1051,13 +1094,13 @@ local function luau_load(module, env, luau_settings)
 						error(string_format("attempt to iterate over a %s value", type(stack[inst.A]))) -- FORGPREP_INEXT encountered non-function value
 					end
 
-					pc += inst.D
+					pc = pc + inst.D
 				elseif op == 61 then --[[ FORGPREP_NEXT ]]
 					if not ttisfunction(stack[inst.A]) then
 						error(string_format("attempt to iterate over a %s value", type(stack[inst.A]))) -- FORGPREP_NEXT encountered non-function value
 					end
 
-					pc += inst.D
+					pc = pc + inst.D
 				elseif op == 63 then --[[ GETVARARGS ]]
 					local A = inst.A
 					local b = inst.B - 1
@@ -1077,7 +1120,7 @@ local function luau_load(module, env, luau_settings)
 
 					for i = 1, nups do
 						local pseudo = code[pc]
-						pc += 1
+						pc = pc + 1
 
 						local type = pseudo.A
 						if type == 0 then --// value
@@ -1100,17 +1143,17 @@ local function luau_load(module, env, luau_settings)
 					local kv = inst.K
 					stack[inst.A] = kv
 
-					pc += 1 --// adjust for aux 
+					pc = pc + 1 --// adjust for aux 
 				elseif op == 67 then --[[ JUMPX ]]
 					if interruptHook then
 						interruptHook(stack, debugging, proto, module, upvals)	
 					end
 
-					pc += inst.E
+					pc = pc + inst.E
 				elseif op == 68 then --[[ FASTCALL ]]
 					--[[ Skipped ]]
 				elseif op == 69 then --[[ COVERAGE ]]
-					inst.E += 1
+					inst.E = inst.E + 1
 				elseif op == 70 then --[[ CAPTURE ]]
 					--[[ Handled by CLOSURE ]]
 					error("encountered unhandled CAPTURE")
@@ -1122,10 +1165,10 @@ local function luau_load(module, env, luau_settings)
 					--[[ Skipped ]]
 				elseif op == 74 then --[[ FASTCALL2 ]]
 					--[[ Skipped ]]
-					pc += 1 --// adjust for aux
+					pc = pc + 1 --// adjust for aux
 				elseif op == 75 then --[[ FASTCALL2K ]]
 					--[[ Skipped ]]
-					pc += 1 --// adjust for aux
+					pc = pc + 1 --// adjust for aux
 				elseif op == 76 then --[[ FORGPREP ]]
 					local iterator = stack[inst.A]
 
@@ -1133,9 +1176,24 @@ local function luau_load(module, env, luau_settings)
 						local loopInstruction = code[pc + inst.D]
 						if generalized_iterators[loopInstruction] == nil then 
 							local function gen_iterator(...)
-								for r1, r2, r3, r4, r5, r6, r7, r8, r9, r10, r11, r12, r13, r14, r15, r16, r17, r18, r19, r20, r21, r22, r23, r24, r25, r26, r27, r28, r29, r30, r31, r32, r33, r34, r35, r36, r37, r38, r39, r40, r41, r42, r43, r44, r45, r46, r47, r48, r49, r50, r51, r52, r53, r54, r55, r56, r57, r58, r59, r60, r61, r62, r63, r64, r65, r66, r67, r68, r69, r70, r71, r72, r73, r74, r75, r76, r77, r78, r79, r80, r81, r82, r83, r84, r85, r86, r87, r88, r89, r90, r91, r92, r93, r94, r95, r96, r97, r98, r99, r100, r101, r102, r103, r104, r105, r106, r107, r108, r109, r110, r111, r112, r113, r114, r115, r116, r117, r118, r119, r120, r121, r122, r123, r124, r125, r126, r127, r128, r129, r130, r131, r132, r133, r134, r135, r136, r137, r138, r139, r140, r141, r142, r143, r144, r145, r146, r147, r148, r149, r150, r151, r152, r153, r154, r155, r156, r157, r158, r159, r160, r161, r162, r163, r164, r165, r166, r167, r168, r169, r170, r171, r172, r173, r174, r175, r176, r177, r178, r179, r180, r181, r182, r183, r184, r185, r186, r187, r188, r189, r190, r191, r192, r193, r194, r195, r196, r197, r198, r199, r200 in ... do 
-									coroutine_yield({r1, r2, r3, r4, r5, r6, r7, r8, r9, r10, r11, r12, r13, r14, r15, r16, r17, r18, r19, r20, r21, r22, r23, r24, r25, r26, r27, r28, r29, r30, r31, r32, r33, r34, r35, r36, r37, r38, r39, r40, r41, r42, r43, r44, r45, r46, r47, r48, r49, r50, r51, r52, r53, r54, r55, r56, r57, r58, r59, r60, r61, r62, r63, r64, r65, r66, r67, r68, r69, r70, r71, r72, r73, r74, r75, r76, r77, r78, r79, r80, r81, r82, r83, r84, r85, r86, r87, r88, r89, r90, r91, r92, r93, r94, r95, r96, r97, r98, r99, r100, r101, r102, r103, r104, r105, r106, r107, r108, r109, r110, r111, r112, r113, r114, r115, r116, r117, r118, r119, r120, r121, r122, r123, r124, r125, r126, r127, r128, r129, r130, r131, r132, r133, r134, r135, r136, r137, r138, r139, r140, r141, r142, r143, r144, r145, r146, r147, r148, r149, r150, r151, r152, r153, r154, r155, r156, r157, r158, r159, r160, r161, r162, r163, r164, r165, r166, r167, r168, r169, r170, r171, r172, r173, r174, r175, r176, r177, r178, r179, r180, r181, r182, r183, r184, r185, r186, r187, r188, r189, r190, r191, r192, r193, r194, r195, r196, r197, r198, r199, r200})
-								end
+								-- what on earth
+
+								for 
+								r1,r2, r3, r4, r5, r6, r7, r8, r9, r10, 
+								r11, r12, r13, r14, r15, r16, r17, r18, 
+								r19, r20, r21, r22, r23, r24, r25, r26, 
+								r27, r28, r29, r30, r31, r32, r33, r34, 
+								r35, r36, r37, r38, r39, r40, r41, r42, 
+								r43, r44, r45, r46, r47, r48, r49, r50, 
+								r51, r52, r53, r54, r55, r56, r57, r58, 
+								r59, r60, r61, r62, r63, r64, r65, r66, 
+								r67, r68, r69, r70, r71, r72, r73, r74, 
+								r75, r76, r77, r78, r79, r80, r81, r82, 
+								r83, r84, r85, r86, r87, r88, r89, r90, 
+								r91, r92, r93, r94, r95, r96, r97, r98
+							in ... do 
+								coroutine.yield({r1, r2, r3, r4, r5, r6, r7, r8, r9, r10, r11, r12, r13, r14, r15, r16, r17, r18, r19, r20, r21, r22, r23, r24, r25, r26, r27, r28, r29, r30, r31, r32, r33, r34, r35, r36, r37, r38, r39, r40, r41, r42, r43, r44, r45, r46, r47, r48, r49, r50, r51, r52, r53, r54, r55, r56, r57, r58, r59, r60, r61, r62, r63, r64, r65, r66, r67, r68, r69, r70, r71, r72, r73, r74, r75, r76, r77, r78, r79, r80, r81, r82, r83, r84, r85, r86, r87, r88, r89, r90, r91, r92, r93, r94, r95, r96, r97, r98})
+							end
 
 								coroutine_yield(LUA_GENERALIZED_TERMINATOR)
 							end
@@ -1144,14 +1202,14 @@ local function luau_load(module, env, luau_settings)
 						end
 					end
 
-					pc += inst.D
+					pc = pc + inst.D
 				elseif op == 77 then --[[ JUMPXEQKNIL ]]
 					local kn = inst.KN
 
 					if (stack[inst.A] == nil) ~= kn then
-						pc += inst.D
+						pc = pc + inst.D
 					else
-						pc += 1
+						pc = pc + 1
 					end
 				elseif op == 78 then --[[ JUMPXEQKB ]]
 					local kv = inst.K
@@ -1159,9 +1217,9 @@ local function luau_load(module, env, luau_settings)
 					local ra = stack[inst.A]
 
 					if (ttisboolean(ra) and (ra == kv)) ~= kn then
-						pc += inst.D
+						pc = pc + inst.D
 					else
-						pc += 1
+						pc = pc + 1
 					end
 				elseif op == 79 then --[[ JUMPXEQKN ]]
 					local kv = inst.K
@@ -1169,9 +1227,9 @@ local function luau_load(module, env, luau_settings)
 					local ra = stack[inst.A]
 
 					if (ra == kv) ~= kn then
-						pc += inst.D
+						pc = pc + inst.D
 					else
-						pc += 1
+						pc = pc + 1
 					end
 				elseif op == 80 then --[[ JUMPXEQKS ]]
 					local kv = inst.K
@@ -1179,14 +1237,14 @@ local function luau_load(module, env, luau_settings)
 					local ra = stack[inst.A]
 
 					if (ra == kv) ~= kn then
-						pc += inst.D
+						pc = pc + inst.D
 					else
-						pc += 1
+						pc = pc + 1
 					end
 				elseif op == 81 then --[[ IDIV ]]
-					stack[inst.A] = stack[inst.B] // stack[inst.C]
+					stack[inst.A] = math.floor(stack[inst.B] / stack[inst.C])
 				elseif op == 82 then --[[ IDIVK ]]
-					stack[inst.A] = stack[inst.B] // inst.K
+					stack[inst.A] = math.floor(stack[inst.B] / inst.K)
 				else
 					error("Unsupported Opcode: " .. inst.opname .. " op: " .. op)
 				end
